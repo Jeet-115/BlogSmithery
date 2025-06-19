@@ -29,7 +29,7 @@ function RegisterForm() {
     try {
       const res = await registerUser(formData);
       dispatch(setCredentials(res));
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
       alert(error?.response?.data?.message || "Registration failed");
     } finally {

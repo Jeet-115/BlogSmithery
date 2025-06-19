@@ -27,7 +27,7 @@ function LoginForm() {
       dispatch(setCredentials({ user: res }));
       sessionStorage.setItem("token", res.token);
       sessionStorage.setItem("user", JSON.stringify(res));
-      navigate(res.role === "admin" ? "/admin/admindashboard" : "/");
+      navigate(res.role === "admin" ? "/admin" : "/dashboard");
     } catch (error) {
       alert(error.response?.data?.message || "Login failed");
     } finally {
