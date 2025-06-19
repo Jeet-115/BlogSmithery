@@ -46,7 +46,7 @@ function RegisterForm() {
         Register
       </h2>
       <p className="text-[#37474F] text-center text-sm mb-6">
-        Create an account to get started.
+        Create an account to start your blogging journey.
       </p>
 
       <div className="space-y-4">
@@ -54,7 +54,7 @@ function RegisterForm() {
           type="text"
           name="name"
           placeholder="Name"
-          className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white/70 text-[#1C2B33] placeholder-[#90A4AE]"
+          className="w-full px-4 py-3 border border-[#00838F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00838F] bg-white/70 text-[#1C2B33] placeholder-[#90A4AE]"
           onChange={handleChange}
           required
         />
@@ -62,7 +62,7 @@ function RegisterForm() {
           type="email"
           name="email"
           placeholder="Email"
-          className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white/70 text-[#1C2B33] placeholder-[#90A4AE]"
+          className="w-full px-4 py-3 border border-[#00838F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00838F] bg-white/70 text-[#1C2B33] placeholder-[#90A4AE]"
           onChange={handleChange}
           required
         />
@@ -71,12 +71,12 @@ function RegisterForm() {
             type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
-            className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 bg-white/70 text-[#1C2B33] placeholder-[#90A4AE]"
+            className="w-full px-4 py-3 border border-[#00838F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00838F] bg-white/70 text-[#1C2B33] placeholder-[#90A4AE]"
             onChange={handleChange}
             required
           />
           <span
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-[#37474F]"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
@@ -92,7 +92,7 @@ function RegisterForm() {
 
       <button
         type="submit"
-        className="w-full bg-[#00838F] text-white py-3 rounded-lg hover:bg-[#006064] transition-all font-medium"
+        className="w-full bg-[#1C2B33] text-white py-3 rounded-lg hover:bg-[#37474F] transition-all font-medium"
         disabled={isLoading}
       >
         {isLoading ? "Registering..." : "Register"}

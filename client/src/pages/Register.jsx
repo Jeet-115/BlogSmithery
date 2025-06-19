@@ -5,7 +5,7 @@ import RegisterRight from "../components/Register/RegisterRight";
 
 function Register() {
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#dff1fd] to-[#b3dcf3] px-4">
+    <div className="relative min-h-screen bg-[#E0E0E0] px-4">
       {/* Logo at Top Left */}
       <Logo />
 
