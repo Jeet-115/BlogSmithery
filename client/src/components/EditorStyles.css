@@ -1,0 +1,122 @@
+/* Editor Container */
+.tiptap {
+  font-family: 'Outfit', sans-serif;
+  min-height: 300px;
+  outline: none;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 0.5rem;
+}
+
+/* Basic Formatting */
+.tiptap h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap p {
+  margin: 0.75rem 0;
+  line-height: 1.6;
+}
+
+.tiptap a {
+  color: #00838f;
+  text-decoration: underline;
+}
+
+.tiptap blockquote {
+  border-left: 4px solid #90a4ae;
+  padding-left: 1rem;
+  font-style: italic;
+  color: #455a64;
+  background-color: #eceff1;
+  margin: 1rem 0;
+}
+
+.tiptap ul,
+.tiptap ol {
+  padding-left: 2rem;
+  margin: 1rem 0;
+}
+
+.tiptap li {
+  margin-bottom: 0.5rem;
+}
+
+.tiptap code {
+  background: #f5f5f5;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.95rem;
+}
+
+.tiptap pre {
+  background: #263238;
+  color: #eceff1;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-family: 'Courier New', monospace;
+}
+
+/* Tables */
+.tiptap table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.tiptap th,
+.tiptap td {
+  border: 1px solid #cfd8dc;
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.tiptap th {
+  background-color: #eceff1;
+  font-weight: 600;
+}
+
+/* Highlight */
+.tiptap mark {
+  background-color: #ffe082;
+  padding: 0 0.2rem;
+}
+
+/* Horizontal Rule */
+.tiptap hr {
+  border: none;
+  border-top: 2px solid #b0bec5;
+  margin: 1.5rem 0;
+}
+
+/* Image */
+.tiptap img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tiptap ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.tiptap ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}

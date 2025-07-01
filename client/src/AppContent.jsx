@@ -13,6 +13,7 @@ import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardHome from "./components/Dashboard/DashboardHome";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminHome from "./components/Admin/AdminHome";
+import CreatePost from "./pages/CreatePost";
 
 const AppContent = () => {
   const dispatch = useDispatch();
@@ -52,6 +53,8 @@ const AppContent = () => {
           }
         >
           <Route index element={<DashboardHome />} />
+          <Route path="explore" element={<DashboardHome />} />
+          <Route path="create" element={<CreatePost />} />
         </Route>
         <Route
           path="/admin"
