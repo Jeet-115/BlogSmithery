@@ -4,7 +4,28 @@ import { getPostById, updatePostById, uploadPostImage } from "../services/postSe
 import RichTextEditor from "../components/RichTextEditor";
 import { toast } from "react-hot-toast";
 
-const categories = [/* same as before */];
+const categories = [
+    "Personal & Lifestyle",
+  "Business & Career",
+  "Finance & Money",
+  "Technology & Innovation",
+  "Education & Learning",
+  "Health & Wellness",
+  "Travel & Culture",
+  "Food & Drink",
+  "Home & Living",
+  "Art & Creativity",
+  "Fashion & Beauty",
+  "Entertainment & Pop Culture",
+  "Sports & Fitness",
+  "Politics & Society",
+  "Science & Nature",
+  "Philosophy & Spirituality",
+  "DIY & How-To",
+  "Family & Relationships",
+  "Opinions & Commentary",
+  "Hobbies & Niche Interests",
+];
 
 const EditPost = () => {
   const { id } = useParams();
