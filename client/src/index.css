@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+.pdf-export-mode {
+  /* fallback text and background color for html2canvas */
+  background-color: white !important;
+  color: black !important;
+}
+
+.pdf-export-mode * {
+  color: black !important;
+  background-color: white !important;
+  border-color: black !important;
+}

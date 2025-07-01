@@ -7,13 +7,13 @@ import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import postRoutes from './routes/postRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
+import overviewRoutes from './routes/overviewRoutes.js';
 
 dotenv.config();
 const app = express();
 
 // Connect to MongoDB
 connectDB();
-
 // Middleware
 app.use(cors({
   origin: 'http://localhost:5173',
@@ -25,6 +25,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/overview', overviewRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

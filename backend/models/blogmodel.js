@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
   {
@@ -6,17 +6,21 @@ const postSchema = new mongoose.Schema(
     content: { type: String, required: true },
     coverImage: { type: String },
     imageGallery: [String],
-    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     tags: [String],
-    category: { type: String, default: 'Uncategorized' },  // ✅ New
+    category: { type: String, default: "Uncategorized" },
     status: {
       type: String,
-      enum: ['draft', 'published'],
-      default: 'draft', // ✅ Default to draft
+      enum: ["draft", "published"],
+      default: "draft",
     },
-    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
 
-export default mongoose.model('Post', postSchema);
+export default mongoose.model("Post", postSchema);

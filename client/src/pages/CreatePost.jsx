@@ -38,6 +38,7 @@ const CreatePost = () => {
   const [category, setCategory] = useState("");
   const [filteredCategories, setFilteredCategories] = useState(categories);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [scheduledDate, setScheduledDate] = useState("");
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ const CreatePost = () => {
         content,
         coverImage,
         category,
-        status,
+        status, // Only 'draft' or 'published'
       });
 
       toast.success(

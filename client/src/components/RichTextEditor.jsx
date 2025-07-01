@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -59,6 +59,12 @@ const RichTextEditor = ({ content, onChange }) => {
       onChange(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+  if (editor && content !== editor.getHTML()) {
+    editor.commands.setContent(content);
+  }
+}, [content]);
 
   const handleImageUpload = async () => {
     const input = document.createElement("input");

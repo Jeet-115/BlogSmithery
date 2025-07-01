@@ -14,6 +14,7 @@ import DashboardHome from "./components/Dashboard/DashboardHome";
 import AdminLayout from "./layouts/AdminLayout";
 import AdminHome from "./components/Admin/AdminHome";
 import CreatePost from "./pages/CreatePost";
+import EditPost from "./pages/EditPost";
 
 const AppContent = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,8 @@ const AppContent = () => {
           <Route index element={<DashboardHome />} />
           <Route path="explore" element={<DashboardHome />} />
           <Route path="create" element={<CreatePost />} />
+          <Route path="edit-post/:id" element={<EditPost />} />
+
         </Route>
         <Route
           path="/admin"
