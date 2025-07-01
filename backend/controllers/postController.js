@@ -2,27 +2,33 @@ import Post from "../models/blogmodel.js";
 
 export const createPost = async (req, res) => {
   try {
-    const { title, content, tags, coverImage } = req.body;
+    const { title, content, tags, coverImage, category, status } = req.body;
+
+    // Extract image URLs from content
     const imageUrls = [];
     const regex = /<img[^>]+src="([^">]+)"/g;
     let match;
     while ((match = regex.exec(content))) {
       imageUrls.push(match[1]);
     }
+
     const post = await Post.create({
       title,
       content,
       tags,
       coverImage,
       imageGallery: imageUrls,
+      category: category || 'Uncategorized',
+      status: status || 'draft',
       author: req.user._id,
     });
 
     res.status(201).json(post);
   } catch (err) {
-    res.status(500).json({ message: "Error creating post" });
+    res.status(500).json({ message: 'Error creating post' });
   }
 };
+
 
 export const getAllPosts = async (req, res) => {
   try {
@@ -46,15 +52,12 @@ export const getPostById = async (req, res) => {
 export const updatePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ message: "Post not found" });
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+    if (post.author.toString() !== req.user._id.toString())
+      return res.status(403).json({ message: 'Unauthorized' });
 
-    if (post.author.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
+    const { title, content, tags, coverImage, category, status } = req.body;
 
-    const { title, content, tags, coverImage } = req.body;
-
-    // ✅ Extract image URLs from updated content
     const imageUrls = [];
     const regex = /<img[^>]+src="([^">]+)"/g;
     let match;
@@ -69,17 +72,20 @@ export const updatePost = async (req, res) => {
         content,
         tags,
         coverImage,
-        imageGallery: imageUrls, // ✅ update imageGallery too
+        imageGallery: imageUrls,
+        category,
+        status,
       },
       { new: true }
     );
 
     res.json(updated);
   } catch (err) {
-    console.error("Error updating post:", err);
-    res.status(500).json({ message: "Error updating post" });
+    console.error('Error updating post:', err);
+    res.status(500).json({ message: 'Error updating post' });
   }
 };
+
 
 export const deletePost = async (req, res) => {
   try {

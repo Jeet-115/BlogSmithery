@@ -4,6 +4,29 @@ import { createPost, uploadPostImage } from "../services/postService";
 import RichTextEditor from "../components/RichTextEditor";
 import { toast } from "react-hot-toast";
 
+const categories = [
+  "Personal & Lifestyle",
+  "Business & Career",
+  "Finance & Money",
+  "Technology & Innovation",
+  "Education & Learning",
+  "Health & Wellness",
+  "Travel & Culture",
+  "Food & Drink",
+  "Home & Living",
+  "Art & Creativity",
+  "Fashion & Beauty",
+  "Entertainment & Pop Culture",
+  "Sports & Fitness",
+  "Politics & Society",
+  "Science & Nature",
+  "Philosophy & Spirituality",
+  "DIY & How-To",
+  "Family & Relationships",
+  "Opinions & Commentary",
+  "Hobbies & Niche Interests",
+];
+
 const CreatePost = () => {
   const [uploading, setUploading] = useState(false);
   const [title, setTitle] = useState("");
@@ -12,6 +35,10 @@ const CreatePost = () => {
   const [coverImage, setCoverImage] = useState("");
   const [coverWidth, setCoverWidth] = useState("100%");
   const [coverHeight, setCoverHeight] = useState("auto");
+  const [category, setCategory] = useState("");
+  const [filteredCategories, setFilteredCategories] = useState(categories);
+  const [showDropdown, setShowDropdown] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -32,8 +59,7 @@ const CreatePost = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (status) => {
     setLoading(true);
 
     try {
@@ -42,26 +68,30 @@ const CreatePost = () => {
         tags: tags.split(",").map((t) => t.trim()),
         content,
         coverImage,
+        category,
+        status,
       });
 
-      toast.success("Post published 🎉");
+      toast.success(
+        status === "published" ? "Post published 🎉" : "Draft saved ✅"
+      );
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to publish post");
+      toast.error("Failed to save post");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="min-h-screen  py-10 px-4">
+    <section className="min-h-screen py-10 px-4">
       <div className="max-w-4xl mx-auto bg-white/70 backdrop-blur p-8 rounded-3xl shadow-xl border border-[#B0BEC5]">
         <h2 className="text-3xl font-bold text-center text-[#1C2B33] mb-8 outfit">
           ✍️ Create a New Blog Post
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form className="space-y-6">
           {/* Title */}
           <div>
             <label className="block text-base font-medium text-[#37474F] mb-1">
@@ -88,6 +118,49 @@ const CreatePost = () => {
               value={tags}
               onChange={(e) => setTags(e.target.value)}
             />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-base font-medium text-[#37474F] mb-1">
+              Category
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={category}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setCategory(value);
+                  const filtered = categories.filter((cat) =>
+                    cat.toLowerCase().includes(value.toLowerCase())
+                  );
+                  setFilteredCategories(filtered);
+                  setShowDropdown(true);
+                }}
+                onFocus={() => setShowDropdown(true)}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 100)} // to allow click
+                placeholder="Select or search category"
+                className="w-full border border-[#B0BEC5] px-4 py-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#00838F] bg-white"
+              />
+
+              {showDropdown && filteredCategories.length > 0 && (
+                <ul className="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto rounded-lg bg-white border border-[#B0BEC5] shadow-lg">
+                  {filteredCategories.map((cat, idx) => (
+                    <li
+                      key={idx}
+                      onMouseDown={() => {
+                        setCategory(cat);
+                        setShowDropdown(false);
+                      }}
+                      className="px-4 py-2 hover:bg-[#E0F7FA] cursor-pointer text-[#37474F]"
+                    >
+                      {cat}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
 
           {/* Cover Image */}
@@ -155,14 +228,25 @@ const CreatePost = () => {
             <RichTextEditor content={content} onChange={setContent} />
           </div>
 
-          {/* Submit */}
-          <button
-            type="submit"
-            className="bg-[#00838F] hover:bg-[#006064] text-white font-semibold px-6 py-3 rounded-full shadow-md transition disabled:opacity-50 block mx-auto"
-            disabled={loading}
-          >
-            {loading ? "Publishing..." : "📤 Publish"}
-          </button>
+          {/* Action Buttons */}
+          <div className="flex justify-center gap-4 mt-6">
+            <button
+              type="button"
+              onClick={() => handleSubmit("draft")}
+              className="bg-gray-300 hover:bg-gray-400 text-[#263238] font-medium px-5 py-2 rounded-full shadow-sm"
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "💾 Save Draft"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSubmit("published")}
+              className="bg-[#00838F] hover:bg-[#006064] text-white font-semibold px-6 py-2 rounded-full shadow-md transition disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? "Publishing..." : "📤 Publish"}
+            </button>
+          </div>
         </form>
       </div>
     </section>
