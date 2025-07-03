@@ -1,13 +1,21 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { registerUser } from "../../services/authService";
 import { setCredentials } from "../../redux/authSlice";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import AlertModal from "../AlertModal";
+import { motion } from "framer-motion";
 
 function RegisterForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const redirectParam = params.get("redirect");
+  const redirectState = location.state?.redirectTo;
+  const fallback = sessionStorage.getItem("redirectAfterAuth");
+  const redirectTo = redirectState || redirectParam || fallback;
 
   const [formData, setFormData] = useState({
     name: "",
@@ -15,89 +23,130 @@ function RegisterForm() {
     password: "",
   });
 
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       const res = await registerUser(formData);
-      dispatch(setCredentials(res));
-      navigate("/dashboard");
+      dispatch(setCredentials({ user: res }));
+
+      if (redirectTo) {
+        sessionStorage.removeItem("redirectAfterAuth");
+        navigate(redirectTo);
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
-      alert(error?.response?.data?.message || "Registration failed");
+      setErrorMsg(error?.response?.data?.message || "Registration failed");
+      setShowAlert(true);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form
+    <motion.form
       onSubmit={handleSubmit}
-      className="bg-white/60 backdrop-blur-lg shadow-lg rounded-2xl p-8 w-full max-w-sm outfit"
+      className="bg-white/60 backdrop-blur-md shadow-2xl rounded-3xl p-8 w-full max-w-sm mx-auto outfit"
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
     >
-      <h2 className="text-3xl font-bold text-[#1C2B33] text-center mb-2">
+      <motion.h2
+        className="text-3xl font-bold text-[#1C2B33] text-center mb-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
         Register
-      </h2>
-      <p className="text-[#37474F] text-center text-sm mb-6">
+      </motion.h2>
+
+      <motion.p
+        className="text-[#37474F] text-center text-sm mb-6"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
         Create an account to start your blogging journey.
-      </p>
+      </motion.p>
 
       <div className="space-y-4">
-        <input
+        <motion.input
           type="text"
           name="name"
           placeholder="Name"
           className="w-full px-4 py-3 border border-[#00838F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00838F] bg-white/70 text-[#1C2B33] placeholder-[#90A4AE]"
           onChange={handleChange}
           required
+          whileFocus={{ scale: 1.02 }}
         />
-        <input
+        <motion.input
           type="email"
           name="email"
           placeholder="Email"
           className="w-full px-4 py-3 border border-[#00838F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00838F] bg-white/70 text-[#1C2B33] placeholder-[#90A4AE]"
           onChange={handleChange}
           required
+          whileFocus={{ scale: 1.02 }}
         />
         <div className="relative">
-          <input
+          <motion.input
             type={showPassword ? "text" : "password"}
             name="password"
             placeholder="Password"
             className="w-full px-4 py-3 border border-[#00838F] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00838F] bg-white/70 text-[#1C2B33] placeholder-[#90A4AE]"
             onChange={handleChange}
             required
+            whileFocus={{ scale: 1.02 }}
           />
           <span
             className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-[#37474F]"
             onClick={() => setShowPassword(!showPassword)}
+            title="Toggle password visibility"
           >
-            {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+            {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
           </span>
         </div>
       </div>
 
       <div className="text-right mt-2 mb-6">
-        <Link to="/login" className="text-sm text-[#00838F] hover:underline">
+        <Link
+          to={{
+            pathname: "/login",
+            search: redirectTo
+              ? `?redirect=${encodeURIComponent(redirectTo)}`
+              : "",
+          }}
+          className="text-sm text-[#00838F] hover:underline"
+        >
           Already have an account? Login
         </Link>
       </div>
 
-      <button
+      <motion.button
         type="submit"
-        className="w-full bg-[#1C2B33] text-white py-3 rounded-lg hover:bg-[#37474F] transition-all font-medium"
         disabled={isLoading}
+        whileTap={{ scale: 0.98 }}
+        className="w-full bg-[#00838F] hover:bg-[#006064] text-white py-3 rounded-lg transition-all font-medium"
       >
         {isLoading ? "Registering..." : "Register"}
-      </button>
-    </form>
+      </motion.button>
+
+      <AlertModal
+        open={showAlert}
+        onClose={() => setShowAlert(false)}
+        title="Registration Error"
+        message={errorMsg}
+      />
+    </motion.form>
   );
 }
 

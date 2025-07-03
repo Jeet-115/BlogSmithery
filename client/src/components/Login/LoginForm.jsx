@@ -1,17 +1,27 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { loginUser } from "../../services/authService";
 import { setCredentials } from "../../redux/authSlice";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import AlertModal from "../AlertModal";
+import { motion } from "framer-motion";
 
 function LoginForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [showAlert, setShowAlert] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const redirectParam = new URLSearchParams(location.search).get("redirect");
+  const redirectState = location.state?.redirectTo;
+  const fallback = sessionStorage.getItem("redirectAfterAuth");
+  const redirectTo = redirectState || redirectParam || fallback;
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -22,32 +32,39 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      await new Promise((res) => setTimeout(res, 1000));
       const res = await loginUser(formData);
       dispatch(setCredentials({ user: res }));
       sessionStorage.setItem("token", res.token);
       sessionStorage.setItem("user", JSON.stringify(res));
-      navigate(res.role === "admin" ? "/admin" : "/dashboard");
+
+      if (redirectTo) {
+        navigate(redirectTo);
+        sessionStorage.removeItem("redirectAfterAuth");
+      } else {
+        navigate(res.role === "admin" ? "/admin" : "/dashboard");
+      }
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+      setErrorMsg(error?.response?.data?.message || "Login failed");
+      setShowAlert(true);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form
+    <motion.form
       onSubmit={handleSubmit}
-      className="bg-white/60 backdrop-blur-lg shadow-lg rounded-2xl p-8 w-full max-w-sm outfit"
+      initial={{ opacity: 0, scale: 0.95, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-white/60 backdrop-blur-lg shadow-xl rounded-2xl p-8 w-full max-w-md mx-auto outfit"
     >
-      <h2 className="text-3xl font-bold text-[#1C2B33] text-center mb-2">
-        Login
-      </h2>
+      <h2 className="text-3xl font-bold text-[#1C2B33] text-center mb-2">Login</h2>
       <p className="text-[#37474F] text-center text-sm mb-6">
         Sign in to explore powerful blog insights.
       </p>
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         <input
           type="email"
           name="email"
@@ -56,6 +73,7 @@ function LoginForm() {
           onChange={handleChange}
           required
         />
+
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -67,27 +85,41 @@ function LoginForm() {
           />
           <span
             className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer text-[#37474F]"
-            onClick={() => setShowPassword(!showPassword)}
+            onClick={() => setShowPassword((prev) => !prev)}
           >
-            {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+            {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
           </span>
         </div>
       </div>
 
-      <div className="text-right mt-2 mb-6">
-        <Link to="/register" className="text-sm text-[#00838F] hover:underline">
+      <div className="text-right mt-3">
+        <Link
+          to={{
+            pathname: "/register",
+            search: redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : "",
+          }}
+          className="text-sm text-[#00838F] hover:underline"
+        >
           New User? Register
         </Link>
       </div>
 
       <button
         type="submit"
-        className="w-full bg-[#1C2B33] text-white py-3 rounded-lg hover:bg-[#37474F] transition-all font-medium"
+        className="w-full bg-[#00838F] hover:bg-[#006064] text-white py-3 rounded-lg transition-all font-medium mt-6"
         disabled={isLoading}
       >
         {isLoading ? "Logging in..." : "Login"}
       </button>
-    </form>
+
+      {/* Alert Modal */}
+      <AlertModal
+        open={showAlert}
+        onClose={() => setShowAlert(false)}
+        title="Login Error"
+        message={errorMsg}
+      />
+    </motion.form>
   );
 }
 

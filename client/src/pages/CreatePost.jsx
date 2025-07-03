@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { createPost, uploadPostImage } from "../services/postService";
 import RichTextEditor from "../components/RichTextEditor";
 import { toast } from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const categories = [
   "Personal & Lifestyle",
@@ -27,6 +28,15 @@ const categories = [
   "Hobbies & Niche Interests",
 ];
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.05, duration: 0.4 },
+  }),
+};
+
 const CreatePost = () => {
   const [uploading, setUploading] = useState(false);
   const [title, setTitle] = useState("");
@@ -47,7 +57,6 @@ const CreatePost = () => {
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append("image", file);
-
     try {
       setUploading(true);
       const { url } = await uploadPostImage(formData);
@@ -62,7 +71,6 @@ const CreatePost = () => {
 
   const handleSubmit = async (status) => {
     setLoading(true);
-
     try {
       await createPost({
         title,
@@ -70,12 +78,10 @@ const CreatePost = () => {
         content,
         coverImage,
         category,
-        status, // Only 'draft' or 'published'
+        status,
       });
 
-      toast.success(
-        status === "published" ? "Post published 🎉" : "Draft saved ✅"
-      );
+      toast.success(status === "published" ? "Post published 🎉" : "Draft saved ✅");
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -86,15 +92,25 @@ const CreatePost = () => {
   };
 
   return (
-    <section className="min-h-screen py-10 px-4">
-      <div className="max-w-4xl mx-auto bg-white/70 backdrop-blur p-8 rounded-3xl shadow-xl border border-[#B0BEC5]">
-        <h2 className="text-3xl font-bold text-center text-[#1C2B33] mb-8 outfit">
+    <section className="min-h-screen bg-[#E0E0E0] py-10 px-4">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={fadeUp}
+        custom={0}
+        className="max-w-4xl mx-auto bg-white/70 backdrop-blur-lg p-8 rounded-3xl shadow-xl border border-[#B0BEC5]"
+      >
+        <motion.h2
+          className="text-3xl sm:text-4xl font-bold text-center text-[#00838F] mb-6 outfit"
+          variants={fadeUp}
+          custom={1}
+        >
           ✍️ Create a New Blog Post
-        </h2>
+        </motion.h2>
 
         <form className="space-y-6">
           {/* Title */}
-          <div>
+          <motion.div variants={fadeUp} custom={2}>
             <label className="block text-base font-medium text-[#37474F] mb-1">
               Title
             </label>
@@ -105,10 +121,10 @@ const CreatePost = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
-          </div>
+          </motion.div>
 
           {/* Tags */}
-          <div>
+          <motion.div variants={fadeUp} custom={3}>
             <label className="block text-base font-medium text-[#37474F] mb-1">
               Tags
             </label>
@@ -119,10 +135,10 @@ const CreatePost = () => {
               value={tags}
               onChange={(e) => setTags(e.target.value)}
             />
-          </div>
+          </motion.div>
 
           {/* Category */}
-          <div>
+          <motion.div variants={fadeUp} custom={4}>
             <label className="block text-base font-medium text-[#37474F] mb-1">
               Category
             </label>
@@ -140,7 +156,7 @@ const CreatePost = () => {
                   setShowDropdown(true);
                 }}
                 onFocus={() => setShowDropdown(true)}
-                onBlur={() => setTimeout(() => setShowDropdown(false), 100)} // to allow click
+                onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
                 placeholder="Select or search category"
                 className="w-full border border-[#B0BEC5] px-4 py-2 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#00838F] bg-white"
               />
@@ -162,10 +178,10 @@ const CreatePost = () => {
                 </ul>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* Cover Image */}
-          <div>
+          <motion.div variants={fadeUp} custom={5}>
             <label className="block text-base font-medium text-[#37474F] mb-1">
               Cover Image
             </label>
@@ -185,12 +201,12 @@ const CreatePost = () => {
 
             {coverImage && (
               <>
-                <div className="flex items-center gap-4 mt-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 mt-3">
                   <div>
                     <label className="text-sm text-[#37474F]">Width:</label>
                     <input
                       type="text"
-                      className="border border-[#90A4AE] px-2 py-1 rounded text-sm w-24 ml-2"
+                      className="border border-[#90A4AE] px-2 py-1 rounded text-sm w-full sm:w-24"
                       value={coverWidth}
                       onChange={(e) => setCoverWidth(e.target.value)}
                       placeholder="e.g. 100%, 400px"
@@ -200,7 +216,7 @@ const CreatePost = () => {
                     <label className="text-sm text-[#37474F]">Height:</label>
                     <input
                       type="text"
-                      className="border border-[#90A4AE] px-2 py-1 rounded text-sm w-24 ml-2"
+                      className="border border-[#90A4AE] px-2 py-1 rounded text-sm w-full sm:w-24"
                       value={coverHeight}
                       onChange={(e) => setCoverHeight(e.target.value)}
                       placeholder="e.g. auto, 300px"
@@ -219,22 +235,26 @@ const CreatePost = () => {
                 />
               </>
             )}
-          </div>
+          </motion.div>
 
-          {/* Rich Text Editor */}
-          <div>
+          {/* Editor */}
+          <motion.div variants={fadeUp} custom={6}>
             <label className="block text-base font-medium text-[#37474F] mb-1">
               Content
             </label>
             <RichTextEditor content={content} onChange={setContent} />
-          </div>
+          </motion.div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-center gap-4 mt-6">
+          {/* Buttons */}
+          <motion.div
+            className="flex flex-col sm:flex-row justify-center gap-4 mt-8"
+            variants={fadeUp}
+            custom={7}
+          >
             <button
               type="button"
               onClick={() => handleSubmit("draft")}
-              className="bg-gray-300 hover:bg-gray-400 text-[#263238] font-medium px-5 py-2 rounded-full shadow-sm"
+              className="bg-gray-300 hover:bg-gray-400 text-[#263238] font-medium px-6 py-2 rounded-full shadow-sm w-full sm:w-auto"
               disabled={loading}
             >
               {loading ? "Saving..." : "💾 Save Draft"}
@@ -242,14 +262,14 @@ const CreatePost = () => {
             <button
               type="button"
               onClick={() => handleSubmit("published")}
-              className="bg-[#00838F] hover:bg-[#006064] text-white font-semibold px-6 py-2 rounded-full shadow-md transition disabled:opacity-50"
+              className="bg-[#00838F] hover:bg-[#006064] text-white font-semibold px-6 py-2 rounded-full shadow-md w-full sm:w-auto transition disabled:opacity-50"
               disabled={loading}
             >
               {loading ? "Publishing..." : "📤 Publish"}
             </button>
-          </div>
+          </motion.div>
         </form>
-      </div>
+      </motion.div>
     </section>
   );
 };

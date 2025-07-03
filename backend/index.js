@@ -8,6 +8,10 @@ import authRoutes from './routes/authRoutes.js';
 import postRoutes from './routes/postRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
 import overviewRoutes from './routes/overviewRoutes.js';
+import exploreRoutes from './routes/exploreRoutes.js';
+import authorRoutes from "./routes/authorRoutes.js";
+import notificationRoutes from './routes/notificationRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -26,6 +30,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/overview', overviewRoutes);
+app.use("/api/explore", exploreRoutes);
+app.use("/api/author", authorRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/profile", profileRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

@@ -1,4 +1,5 @@
 import Post from "../models/blogmodel.js";
+import Notification from "../models/notificationModel.js";
 
 export const createPost = async (req, res) => {
   try {
@@ -39,7 +40,10 @@ export const getAllPosts = async (req, res) => {
 
 export const getPostById = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).populate("author", "name");
+    const post = await Post.findById(req.params.id).populate(
+      "author",
+      "name createdAt"
+    );
     if (!post) return res.status(404).json({ message: "Post not found" });
     res.json(post);
   } catch (err) {
@@ -102,7 +106,7 @@ export const deletePost = async (req, res) => {
 
 export const toggleLike = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate("author", "name");
     if (!post) return res.status(404).json({ message: "Post not found" });
 
     const userId = req.user._id;
@@ -112,11 +116,23 @@ export const toggleLike = async (req, res) => {
       post.likes.pull(userId);
     } else {
       post.likes.push(userId);
+
+      // Create notification only if not self-like
+      if (post.author._id.toString() !== userId.toString()) {
+        await Notification.create({
+          recipient: post.author._id,
+          sender: userId,
+          type: "like",
+          post: post._id,
+          message: `${req.user.name} liked your blog post "${post.title}"`,
+        });
+      }
     }
 
     await post.save();
     res.json({ liked: !liked });
   } catch (err) {
+    console.error("Error toggling like:", err);
     res.status(500).json({ message: "Error toggling like" });
   }
 };

@@ -33,13 +33,12 @@ import {
   FaMinus,
 } from "react-icons/fa";
 
+import { motion } from "framer-motion";
 import "./EditorStyles.css";
-
-const toolbarBtn =
-  "p-2 rounded bg-[#E0F7FA] hover:bg-[#B2EBF2] text-[#006064] transition text-base shadow-sm border border-[#00ACC1]";
 
 const RichTextEditor = ({ content, onChange }) => {
   const [uploading, setUploading] = useState(false);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -55,16 +54,14 @@ const RichTextEditor = ({ content, onChange }) => {
       TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     content,
-    onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
-    },
+    onUpdate: ({ editor }) => onChange(editor.getHTML()),
   });
 
   useEffect(() => {
-  if (editor && content !== editor.getHTML()) {
-    editor.commands.setContent(content);
-  }
-}, [content]);
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content]);
 
   const handleImageUpload = async () => {
     const input = document.createElement("input");
@@ -79,10 +76,7 @@ const RichTextEditor = ({ content, onChange }) => {
 
       try {
         setUploading(true);
-        const { data } = await axiosInstance.post(
-          "/api/posts/upload-image",
-          formData
-        );
+        const { data } = await axiosInstance.post("/api/posts/upload-image", formData);
         editor.chain().focus().setImage({ src: data.url, width: "100%" }).run();
       } catch (err) {
         console.error("Image upload failed:", err);
@@ -94,41 +88,60 @@ const RichTextEditor = ({ content, onChange }) => {
 
   if (!editor) return null;
 
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  };
+
+  const toolbarButtons = [
+    [FaBold, () => editor.chain().focus().toggleBold().run()],
+    [FaItalic, () => editor.chain().focus().toggleItalic().run()],
+    [FaUnderline, () => editor.chain().focus().toggleUnderline().run()],
+    [FaHighlighter, () => editor.chain().focus().toggleHighlight().run()],
+    [FaHeading, () => editor.chain().focus().toggleHeading({ level: 2 }).run()],
+    [FaListUl, () => editor.chain().focus().toggleBulletList().run()],
+    [FaListOl, () => editor.chain().focus().toggleOrderedList().run()],
+    [FaQuoteRight, () => editor.chain().focus().toggleBlockquote().run()],
+    [FaMinus, () => editor.chain().focus().setHorizontalRule().run()],
+    [FaUndo, () => editor.chain().focus().undo().run()],
+    [FaRedo, () => editor.chain().focus().redo().run()],
+    [FaImage, handleImageUpload],
+    [
+      FaLink,
+      () => {
+        const url = prompt("Enter link URL");
+        if (url) editor.chain().focus().setLink({ href: url }).run();
+      },
+    ],
+    [FaAlignLeft, () => editor.chain().focus().setTextAlign("left").run()],
+    [FaAlignCenter, () => editor.chain().focus().setTextAlign("center").run()],
+    [FaAlignRight, () => editor.chain().focus().setTextAlign("right").run()],
+    [
+      FaTable,
+      () => {
+        const rows = parseInt(prompt("Enter number of rows (1-10):"), 10);
+        const cols = parseInt(prompt("Enter number of columns (1-10):"), 10);
+        if (!isNaN(rows) && !isNaN(cols) && rows > 0 && cols > 0) {
+          editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+        }
+      },
+    ],
+  ];
+
   return (
-    <div className="border rounded-xl bg-white shadow-md">
-      <div className="flex flex-wrap gap-2 p-3 border-b bg-[#E0F7FA] rounded-t-xl">
-        {[ // Buttons list
-          [FaBold, () => editor.chain().focus().toggleBold().run()],
-          [FaItalic, () => editor.chain().focus().toggleItalic().run()],
-          [FaUnderline, () => editor.chain().focus().toggleUnderline().run()],
-          [FaHighlighter, () => editor.chain().focus().toggleHighlight().run()],
-          [FaHeading, () => editor.chain().focus().toggleHeading({ level: 2 }).run()],
-          [FaListUl, () => editor.chain().focus().toggleBulletList().run()],
-          [FaListOl, () => editor.chain().focus().toggleOrderedList().run()],
-          [FaQuoteRight, () => editor.chain().focus().toggleBlockquote().run()],
-          [FaMinus, () => editor.chain().focus().setHorizontalRule().run()],
-          [FaUndo, () => editor.chain().focus().undo().run()],
-          [FaRedo, () => editor.chain().focus().redo().run()],
-          [FaImage, handleImageUpload],
-          [FaLink, () => {
-            const url = prompt("Enter link URL");
-            if (url) editor.chain().focus().setLink({ href: url }).run();
-          }],
-          [FaAlignLeft, () => editor.chain().focus().setTextAlign("left").run()],
-          [FaAlignCenter, () => editor.chain().focus().setTextAlign("center").run()],
-          [FaAlignRight, () => editor.chain().focus().setTextAlign("right").run()],
-          [FaTable, () => {
-            const rows = parseInt(prompt("Enter number of rows (1-10):"), 10);
-            const cols = parseInt(prompt("Enter number of columns (1-10):"), 10);
-            if (!isNaN(rows) && !isNaN(cols) && rows > 0 && cols > 0) {
-              editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
-            }
-          }],
-        ].map(([Icon, action], i) => (
+    <motion.div
+      variants={fadeIn}
+      initial="hidden"
+      animate="visible"
+      className="border border-[#B0BEC5] rounded-2xl bg-white shadow-md overflow-hidden"
+    >
+      {/* Toolbar */}
+      <div className="flex flex-wrap gap-2 p-3 border-b bg-[#E0F7FA] rounded-t-2xl">
+        {toolbarButtons.map(([Icon, action], i) => (
           <button
             key={i}
             type="button"
-            className={toolbarBtn}
+            className="p-2 rounded bg-[#E0F7FA] hover:bg-[#B2EBF2] text-[#006064] text-base shadow-sm border border-[#00ACC1] transition"
             onClick={action}
           >
             <Icon />
@@ -136,8 +149,9 @@ const RichTextEditor = ({ content, onChange }) => {
         ))}
       </div>
 
+      {/* Custom Image Controls */}
       {editor.isActive("customImage") && (
-        <div className="flex gap-4 px-4 py-2 border-b items-center bg-[#F1F8F9]">
+        <div className="flex flex-wrap gap-4 px-4 py-2 border-b items-center bg-[#F1F8F9]">
           <label className="text-sm text-gray-600">Width:</label>
           <input
             type="text"
@@ -148,7 +162,7 @@ const RichTextEditor = ({ content, onChange }) => {
                 width: e.target.value,
               })
             }
-            placeholder="e.g. 300px or 50%"
+            placeholder="e.g. 300px"
           />
           <label className="text-sm text-gray-600">Height:</label>
           <input
@@ -165,6 +179,7 @@ const RichTextEditor = ({ content, onChange }) => {
         </div>
       )}
 
+      {/* Upload Spinner */}
       {uploading && (
         <p className="text-sm text-[#00838F] italic flex items-center gap-2 px-4 py-2">
           <span className="animate-spin border-2 border-[#00ACC1] border-t-transparent rounded-full w-4 h-4"></span>
@@ -172,11 +187,12 @@ const RichTextEditor = ({ content, onChange }) => {
         </p>
       )}
 
+      {/* Editor Content */}
       <EditorContent
         editor={editor}
-        className="tiptap p-4 min-h-[300px] bg-white rounded-b-xl"
+        className="tiptap p-4 min-h-[300px] bg-white rounded-b-2xl"
       />
-    </div>
+    </motion.div>
   );
 };
 

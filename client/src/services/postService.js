@@ -24,3 +24,8 @@ export const updatePostById = async (id, postData) => {
   const response = await axiosInstance.put(`/api/posts/${id}`, postData);
   return response.data;
 };
+
+export const toggleLikePost = async (postId) => {
+  const res = await axiosInstance.patch(`/api/posts/${postId}/like`);
+  return res.data;
+};

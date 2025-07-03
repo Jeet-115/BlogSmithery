@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getPostById, updatePostById, uploadPostImage } from "../services/postService";
+import {
+  getPostById,
+  updatePostById,
+  uploadPostImage,
+} from "../services/postService";
 import RichTextEditor from "../components/RichTextEditor";
 import { toast } from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const categories = [
-    "Personal & Lifestyle",
+  "Personal & Lifestyle",
   "Business & Career",
   "Finance & Money",
   "Technology & Innovation",
@@ -42,6 +47,15 @@ const EditPost = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 30 },
+    visible: (i) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: i * 0.1, duration: 0.5 },
+    }),
+  };
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -90,7 +104,9 @@ const EditPost = () => {
         status,
       });
 
-      toast.success(status === "published" ? "Post updated & published" : "Draft updated");
+      toast.success(
+        status === "published" ? "Post updated & published" : "Draft updated"
+      );
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -102,35 +118,54 @@ const EditPost = () => {
 
   return (
     <section className="min-h-screen py-10 px-4">
-      <div className="max-w-4xl mx-auto bg-white/70 backdrop-blur p-8 rounded-3xl shadow-xl border border-[#B0BEC5]">
-        <h2 className="text-3xl font-bold text-center text-[#1C2B33] mb-8 outfit">🛠️ Edit Post</h2>
+      <motion.div
+        className="max-w-4xl mx-auto bg-white/70 backdrop-blur p-8 rounded-3xl shadow-xl border border-[#B0BEC5]"
+        initial="hidden"
+        animate="visible"
+        variants={fadeUp}
+      >
+        <motion.h2
+          className="text-3xl font-bold text-center text-[#1C2B33] mb-8 outfit"
+          variants={fadeUp}
+          custom={0}
+        >
+          🛠️ Edit Post
+        </motion.h2>
 
         <form className="space-y-6">
           {/* Title */}
-          <div>
-            <label className="block font-medium text-[#37474F] mb-1">Title</label>
+          <motion.div variants={fadeUp} custom={1}>
+            <label className="block font-medium text-[#37474F] mb-1">
+              Title
+            </label>
             <input
               type="text"
-              className="w-full border px-4 py-2 rounded-lg"
+              className="w-full border border-[#B0BEC5] px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-[#00838F] focus:outline-none"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter blog title"
             />
-          </div>
+          </motion.div>
 
           {/* Tags */}
-          <div>
-            <label className="block font-medium text-[#37474F] mb-1">Tags</label>
+          <motion.div variants={fadeUp} custom={2}>
+            <label className="block font-medium text-[#37474F] mb-1">
+              Tags
+            </label>
             <input
               type="text"
-              className="w-full border px-4 py-2 rounded-lg"
+              className="w-full border border-[#B0BEC5] px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-[#00838F] focus:outline-none"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
+              placeholder="e.g. spirituality, wisdom"
             />
-          </div>
+          </motion.div>
 
           {/* Category */}
-          <div>
-            <label className="block font-medium text-[#37474F] mb-1">Category</label>
+          <motion.div variants={fadeUp} custom={3}>
+            <label className="block font-medium text-[#37474F] mb-1">
+              Category
+            </label>
             <div className="relative">
               <input
                 type="text"
@@ -139,16 +174,19 @@ const EditPost = () => {
                   const val = e.target.value;
                   setCategory(val);
                   setFilteredCategories(
-                    categories.filter((cat) => cat.toLowerCase().includes(val.toLowerCase()))
+                    categories.filter((cat) =>
+                      cat.toLowerCase().includes(val.toLowerCase())
+                    )
                   );
                   setShowDropdown(true);
                 }}
                 onFocus={() => setShowDropdown(true)}
                 onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
-                className="w-full border px-4 py-2 rounded-lg"
+                placeholder="Search or select category"
+                className="w-full border border-[#B0BEC5] px-4 py-2 rounded-lg shadow-sm focus:ring-2 focus:ring-[#00838F] focus:outline-none"
               />
               {showDropdown && filteredCategories.length > 0 && (
-                <ul className="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto rounded-lg bg-white border shadow-lg">
+                <ul className="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto rounded-lg bg-white border border-[#B0BEC5] shadow-lg">
                   {filteredCategories.map((cat, idx) => (
                     <li
                       key={idx}
@@ -156,7 +194,7 @@ const EditPost = () => {
                         setCategory(cat);
                         setShowDropdown(false);
                       }}
-                      className="px-4 py-2 hover:bg-[#E0F7FA] cursor-pointer"
+                      className="px-4 py-2 hover:bg-[#E0F7FA] cursor-pointer text-[#37474F]"
                     >
                       {cat}
                     </li>
@@ -164,53 +202,74 @@ const EditPost = () => {
                 </ul>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* Cover Image */}
-          <div>
-            <label className="block font-medium text-[#37474F] mb-1">Cover Image</label>
-            <input type="file" accept="image/*" onChange={handleCoverUpload} />
-            {uploading && <p className="text-sm text-blue-500 mt-1">Uploading image...</p>}
+          <motion.div variants={fadeUp} custom={4}>
+            <label className="block font-medium text-[#37474F] mb-1">
+              Cover Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleCoverUpload}
+              className="block mt-1"
+            />
+            {uploading && (
+              <p className="text-sm text-[#00838F] italic mt-1">
+                Uploading image...
+              </p>
+            )}
             {coverImage && (
               <>
-                <div className="mt-3">
+                <div className="mt-3 flex flex-wrap gap-3">
                   <input
                     type="text"
                     value={coverWidth}
                     onChange={(e) => setCoverWidth(e.target.value)}
                     placeholder="Width (e.g. 100%)"
-                    className="border px-2 py-1 rounded mr-2"
+                    className="border px-3 py-1 rounded w-36"
                   />
                   <input
                     type="text"
                     value={coverHeight}
                     onChange={(e) => setCoverHeight(e.target.value)}
                     placeholder="Height (e.g. auto)"
-                    className="border px-2 py-1 rounded"
+                    className="border px-3 py-1 rounded w-36"
                   />
                 </div>
                 <img
                   src={coverImage}
                   alt="Cover"
-                  className="mt-3 rounded border shadow"
-                  style={{ width: coverWidth, height: coverHeight, objectFit: "contain" }}
+                  className="mt-4 rounded-xl border border-[#B0BEC5] shadow-sm"
+                  style={{
+                    width: coverWidth,
+                    height: coverHeight,
+                    objectFit: "contain",
+                  }}
                 />
               </>
             )}
-          </div>
+          </motion.div>
 
-          {/* Editor */}
-          <div>
-            <label className="block font-medium text-[#37474F] mb-1">Content</label>
+          {/* Content Editor */}
+          <motion.div variants={fadeUp} custom={5}>
+            <label className="block font-medium text-[#37474F] mb-1">
+              Content
+            </label>
             <RichTextEditor content={content} onChange={setContent} />
-          </div>
+          </motion.div>
 
-          {/* Submit */}
-          <div className="flex justify-center gap-4 mt-6">
+          {/* Buttons */}
+          <motion.div
+            className="flex flex-wrap justify-center gap-4 mt-6"
+            variants={fadeUp}
+            custom={6}
+          >
             <button
               type="button"
               onClick={() => handleSubmit("draft")}
-              className="bg-gray-300 hover:bg-gray-400 text-black font-medium px-5 py-2 rounded-full"
+              className="bg-gray-300 hover:bg-gray-400 text-[#263238] font-medium px-5 py-2 rounded-full shadow-sm transition"
               disabled={loading}
             >
               {loading ? "Saving..." : "💾 Save Draft"}
@@ -218,14 +277,14 @@ const EditPost = () => {
             <button
               type="button"
               onClick={() => handleSubmit("published")}
-              className="bg-[#00838F] hover:bg-[#006064] text-white font-semibold px-6 py-2 rounded-full"
+              className="bg-[#00838F] hover:bg-[#006064] text-white font-semibold px-6 py-2 rounded-full shadow-md transition"
               disabled={loading}
             >
               {loading ? "Updating..." : "📤 Update & Publish"}
             </button>
-          </div>
+          </motion.div>
         </form>
-      </div>
+      </motion.div>
     </section>
   );
 };
