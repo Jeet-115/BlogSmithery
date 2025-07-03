@@ -6,7 +6,16 @@ const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
-// Register
+const getCookieOptions = () => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? 'None' : 'Lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
+};
+
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -24,12 +33,7 @@ export const register = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      sameSite: 'Strict',
-      secure: false, // Set true in production with HTTPS
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('token', token, getCookieOptions());
 
     res.status(201).json({ _id: user._id, name: user.name, email: user.email, role: user.role });
   } catch (error) {
@@ -37,7 +41,6 @@ export const register = async (req, res) => {
   }
 };
 
-// Login
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -50,12 +53,7 @@ export const login = async (req, res) => {
 
     const token = generateToken(user._id);
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      sameSite: 'Strict',
-      secure: false,
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    res.cookie('token', token, getCookieOptions());
 
     res.status(200).json({ _id: user._id, name: user.name, email: user.email, role: user.role });
   } catch (error) {
@@ -63,14 +61,16 @@ export const login = async (req, res) => {
   }
 };
 
-// Logout
 export const logout = (req, res) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+
   res.cookie('token', '', {
     httpOnly: true,
-    sameSite: 'Strict',
-    secure: false, // set true in production
-    expires: new Date(0), // expires immediately
+    secure: isProduction,
+    sameSite: isProduction ? 'None' : 'Lax',
+    expires: new Date(0),
   });
+
   res.status(200).json({ message: 'Logged out successfully' });
 };
 
