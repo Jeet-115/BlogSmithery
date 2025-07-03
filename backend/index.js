@@ -20,7 +20,7 @@ const app = express();
 connectDB();
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [process.env.CLIENT_URL, process.env.VERCEL_URL],
   credentials: true,
 }));
 app.use(express.json());
