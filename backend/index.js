@@ -35,6 +35,11 @@ app.use("/api/author", authorRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/profile", profileRoutes);
 
+app.get("/health", (req, res) => {
+  console.log("🩺 Health check at:", new Date().toLocaleString());
+  res.status(200).send("OK");
+});
+
 app.get('/', (req, res) => {
   res.send('API is running...');
 });
