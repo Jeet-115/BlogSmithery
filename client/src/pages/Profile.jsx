@@ -19,7 +19,31 @@ const Profile = () => {
     linkedin: "",
     github: "",
     profilePhoto: "",
+    interests: [],
   });
+
+  const categories = [
+    "Personal & Lifestyle",
+    "Business & Career",
+    "Finance & Money",
+    "Technology & Innovation",
+    "Education & Learning",
+    "Health & Wellness",
+    "Travel & Culture",
+    "Food & Drink",
+    "Home & Living",
+    "Art & Creativity",
+    "Fashion & Beauty",
+    "Entertainment & Pop Culture",
+    "Sports & Fitness",
+    "Politics & Society",
+    "Science & Nature",
+    "Philosophy & Spirituality",
+    "DIY & How-To",
+    "Family & Relationships",
+    "Opinions & Commentary",
+    "Hobbies & Niche Interests",
+  ];
 
   const [preview, setPreview] = useState(null);
   const [file, setFile] = useState(null);
@@ -36,6 +60,7 @@ const Profile = () => {
         linkedin: user.socialLinks?.linkedin || "",
         github: user.socialLinks?.github || "",
         profilePhoto: user.profileImage || "",
+        interests: user.interests || [],
       });
       setPreview(user.profileImage || null);
     }
@@ -68,6 +93,7 @@ const Profile = () => {
         github: form.github,
       })
     );
+    data.append("interests", JSON.stringify(form.interests));
     if (file) data.append("profileImage", file);
 
     try {
@@ -183,6 +209,29 @@ const Profile = () => {
             onChange={handleInputChange}
             className="w-full px-4 py-2 border border-[#B0BEC5] rounded-lg bg-white/80 text-sm"
           />
+          <div>
+            <label className="block text-sm font-medium mb-1 text-[#37474F]">
+              Interests / Favorite Categories
+            </label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {categories.map((cat) => (
+                <label key={cat} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    value={cat}
+                    checked={form.interests.includes(cat)}
+                    onChange={(e) => {
+                      const selected = [...form.interests];
+                      if (e.target.checked) selected.push(cat);
+                      else selected.splice(selected.indexOf(cat), 1);
+                      setForm((prev) => ({ ...prev, interests: selected }));
+                    }}
+                  />
+                  {cat}
+                </label>
+              ))}
+            </div>
+          </div>
 
           <motion.button
             whileHover={{ scale: 1.03 }}
@@ -195,6 +244,7 @@ const Profile = () => {
         </form>
 
         {/* Live Preview (Optional) */}
+        {/* Live Preview with Categories */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -213,9 +263,11 @@ const Profile = () => {
             <p className="text-sm text-[#546E7A]">
               {form.bio || "Your bio..."}
             </p>
+
             {form.location && (
               <p className="text-xs text-[#78909C] mt-1">{form.location}</p>
             )}
+
             {form.website && (
               <a
                 href={form.website}
@@ -225,6 +277,25 @@ const Profile = () => {
               >
                 {form.website}
               </a>
+            )}
+
+            {/* Selected Interests */}
+            {form.interests.length > 0 && (
+              <div className="mt-4 w-full">
+                <p className="text-sm font-medium text-[#37474F] mb-2">
+                  Favorite Categories
+                </p>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {form.interests.map((cat, index) => (
+                    <span
+                      key={index}
+                      className="text-xs bg-[#00838F]/10 text-[#006064] px-3 py-1 rounded-full border border-[#00838F] font-medium"
+                    >
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </motion.div>

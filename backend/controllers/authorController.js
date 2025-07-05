@@ -6,9 +6,9 @@ export const getAuthorDetails = async (req, res) => {
     const authorId = req.params.id;
     const { category } = req.query;
 
-    // Include all necessary user fields for frontend display
+    // Include followers field
     const author = await User.findById(authorId).select(
-      "name createdAt bio location website profileImage socialLinks"
+      "name createdAt bio location website profileImage socialLinks followers following"
     );
 
     if (!author) return res.status(404).json({ message: "Author not found" });

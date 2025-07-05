@@ -59,7 +59,9 @@ function LoginForm() {
       transition={{ duration: 0.5 }}
       className="bg-white/60 backdrop-blur-lg shadow-xl rounded-2xl p-8 w-full max-w-md mx-auto outfit"
     >
-      <h2 className="text-3xl font-bold text-[#1C2B33] text-center mb-2">Login</h2>
+      <h2 className="text-3xl font-bold text-[#1C2B33] text-center mb-2">
+        Login
+      </h2>
       <p className="text-[#37474F] text-center text-sm mb-6">
         Sign in to explore powerful blog insights.
       </p>
@@ -96,7 +98,9 @@ function LoginForm() {
         <Link
           to={{
             pathname: "/register",
-            search: redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : "",
+            search: redirectTo
+              ? `?redirect=${encodeURIComponent(redirectTo)}`
+              : "",
           }}
           className="text-sm text-[#00838F] hover:underline"
         >
@@ -115,7 +119,10 @@ function LoginForm() {
       {/* Alert Modal */}
       <AlertModal
         open={showAlert}
-        onClose={() => setShowAlert(false)}
+        onClose={() => {
+          setShowAlert(false);
+          navigate("/");
+        }}
         title="Login Error"
         message={errorMsg}
       />

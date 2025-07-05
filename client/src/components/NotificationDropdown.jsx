@@ -98,7 +98,16 @@ const NotificationDropdown = () => {
                     key={n._id}
                     className="text-sm text-[#37474F] border-b last:border-none pb-2"
                   >
-                    <div className="font-medium">{n.message}</div>
+                    <div className="font-medium">
+                      {n.type === "follow" ? (
+                        <span>
+                          <strong>{n.sender?.name || "Someone"}</strong> started
+                          following you.
+                        </span>
+                      ) : (
+                        n.message
+                      )}
+                    </div>
                     <div className="text-xs text-[#90A4AE]">
                       {new Date(n.createdAt).toLocaleString()}
                     </div>

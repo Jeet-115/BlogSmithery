@@ -17,6 +17,9 @@ const userSchema = new mongoose.Schema(
       linkedin: { type: String, default: "" },
       github: { type: String, default: "" },
     },
+    interests: { type: [String], default: [] },
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

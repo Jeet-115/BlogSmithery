@@ -77,7 +77,6 @@ export const getPublicExplorePosts = async (req, res) => {
   }
 };
 
-// Private Explore - exclude user's own blogs
 export const getPrivateExplorePosts = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -89,11 +88,27 @@ export const getPrivateExplorePosts = async (req, res) => {
       limit = 10,
     } = req.query;
 
-    const query = {
+    const skip = (page - 1) * limit;
+    const sortBy =
+      sort === "popular"
+        ? { likes: -1 }
+        : sort === "views"
+        ? { views: -1 }
+        : { createdAt: -1 };
+
+    const currentUser = await User.findById(userId).select(
+      "interests following"
+    );
+    const interests = currentUser.interests || [];
+    const following = currentUser.following || [];
+
+    // Base filter: not own posts, must be published
+    const baseQuery = {
       status: "published",
       author: { $ne: userId },
     };
 
+    // Add search filter
     if (search) {
       const matchedUsers = await User.find({
         name: { $regex: search, $options: "i" },
@@ -110,15 +125,27 @@ export const getPrivateExplorePosts = async (req, res) => {
         orConditions.push({ author: { $in: matchedAuthorIds } });
       }
 
-      query.$or = orConditions;
+      baseQuery.$or = orConditions;
     }
 
-    if (category) query.category = category;
+    if (category) {
+      baseQuery.category = category;
+    }
 
-    const posts = await Post.find(query)
-      .populate("author", "name")
-      .sort(sort === "popular" ? { likes: -1 } : { createdAt: -1 })
-      .skip((page - 1) * limit)
+    // Build priority-based query
+    const prioritizedQuery = {
+      $and: [baseQuery],
+      $or: [
+        { category: { $in: interests } },
+        { author: { $in: following } },
+        {}, // fallback
+      ],
+    };
+
+    const posts = await Post.find(prioritizedQuery)
+      .populate("author", "name profileImage")
+      .sort(sortBy)
+      .skip(skip)
       .limit(Number(limit));
 
     res.json(posts);

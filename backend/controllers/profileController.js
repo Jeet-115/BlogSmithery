@@ -15,15 +15,24 @@ export const getUserProfile = async (req, res) => {
 // Update user profile
 export const updateUserProfile = async (req, res) => {
   try {
-    let { name, bio, location, website, socialLinks } = req.body;
+    let { name, bio, location, website, socialLinks, interests } = req.body;
 
-    // Safely parse socialLinks if it's a string
+    // Parse socialLinks if sent as JSON string
     try {
       if (typeof socialLinks === "string") {
         socialLinks = JSON.parse(socialLinks);
       }
     } catch (err) {
       socialLinks = {};
+    }
+
+    // Parse interests if sent as JSON string
+    try {
+      if (typeof interests === "string") {
+        interests = JSON.parse(interests);
+      }
+    } catch (err) {
+      interests = [];
     }
 
     const user = await User.findById(req.user._id);
@@ -35,20 +44,23 @@ export const updateUserProfile = async (req, res) => {
     user.location = location || user.location;
     user.website = website || user.website;
 
-    // Safely update social links
+    // Update social links
     user.socialLinks = {
       twitter: socialLinks.twitter || user.socialLinks?.twitter || "",
       linkedin: socialLinks.linkedin || user.socialLinks?.linkedin || "",
       github: socialLinks.github || user.socialLinks?.github || "",
     };
 
-    // Handle profile image upload if new file is present
+    // Update interests
+    user.interests = Array.isArray(interests) ? interests : user.interests;
+
+    // Handle profile image upload
     if (req.file) {
       const upload = await cloudinary.uploader.upload(req.file.path, {
         folder: "blogsmithery-profiles",
         transformation: [{ width: 512, height: 512, crop: "fill" }],
       });
-      await fs.unlink(req.file.path); // clean up local file
+      await fs.unlink(req.file.path);
       user.profileImage = upload.secure_url;
     }
 

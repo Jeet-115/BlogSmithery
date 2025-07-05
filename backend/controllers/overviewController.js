@@ -1,8 +1,10 @@
 import Post from "../models/blogmodel.js";
+import User from "../models/User.js";
 
 export const getUserOverview = async (req, res) => {
   try {
     const userId = req.user._id;
+    const user = await User.findById(userId).select("followers following");
 
     // Calculate stats using MongoDB queries
     const [total, published, draft] = await Promise.all([
@@ -13,7 +15,10 @@ export const getUserOverview = async (req, res) => {
 
     const allPosts = await Post.find({ author: userId }, "views likes");
     const views = allPosts.reduce((sum, post) => sum + (post.views || 0), 0);
-    const likes = allPosts.reduce((sum, post) => sum + (post.likes?.length || 0), 0);
+    const likes = allPosts.reduce(
+      (sum, post) => sum + (post.likes?.length || 0),
+      0
+    );
 
     // Fetch recent 10 posts
     const recentPosts = await Post.find({ author: userId })
@@ -28,6 +33,8 @@ export const getUserOverview = async (req, res) => {
         draft,
         views,
         likes,
+        followers: user.followers.length,
+        following: user.following.length,
       },
       recentPosts,
     });
@@ -60,7 +67,7 @@ export const getCategoryStats = async (req, res) => {
     const categoryStats = await Post.aggregate([
       { $match: { author: userId } },
       { $group: { _id: "$category", count: { $sum: 1 } } },
-      { $sort: { count: -1 } }
+      { $sort: { count: -1 } },
     ]);
 
     res.json(categoryStats);
@@ -79,10 +86,10 @@ export const getPublishingTrends = async (req, res) => {
       {
         $group: {
           _id: { $dateToString: { format: "%Y-%m", date: "$createdAt" } },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
-      { $sort: { _id: 1 } }
+      { $sort: { _id: 1 } },
     ]);
 
     res.json(data);
@@ -100,8 +107,10 @@ export const getStaleDrafts = async (req, res) => {
     const drafts = await Post.find({
       author: userId,
       status: "draft",
-      updatedAt: { $lt: cutoff }
-    }).sort({ updatedAt: 1 }).limit(5);
+      updatedAt: { $lt: cutoff },
+    })
+      .sort({ updatedAt: 1 })
+      .limit(5);
 
     res.json(drafts);
   } catch (err) {
@@ -117,7 +126,9 @@ export const getWordStats = async (req, res) => {
 
     const wordStats = posts.reduce(
       (acc, post) => {
-        const wordCount = post.content.replace(/<[^>]+>/g, "").split(/\s+/).length;
+        const wordCount = post.content
+          .replace(/<[^>]+>/g, "")
+          .split(/\s+/).length;
         acc.totalWords += wordCount;
         acc.totalPosts += 1;
         return acc;
@@ -127,9 +138,10 @@ export const getWordStats = async (req, res) => {
 
     res.json({
       ...wordStats,
-      averageWords: wordStats.totalPosts > 0
-        ? Math.round(wordStats.totalWords / wordStats.totalPosts)
-        : 0
+      averageWords:
+        wordStats.totalPosts > 0
+          ? Math.round(wordStats.totalWords / wordStats.totalPosts)
+          : 0,
     });
   } catch (err) {
     console.error("Error computing word stats:", err);
@@ -144,7 +156,7 @@ export const getRecentlyLikedPosts = async (req, res) => {
     const posts = await Post.find({
       author: userId,
       status: "published",
-      likes: { $exists: true, $not: { $size: 0 } }
+      likes: { $exists: true, $not: { $size: 0 } },
     })
       .sort({ updatedAt: -1 })
       .limit(5)
@@ -162,7 +174,10 @@ export const getMilestones = async (req, res) => {
     const userId = req.user._id;
     const posts = await Post.find({ author: userId });
 
-    const totalLikes = posts.reduce((sum, p) => sum + (p.likes?.length || 0), 0);
+    const totalLikes = posts.reduce(
+      (sum, p) => sum + (p.likes?.length || 0),
+      0
+    );
     const totalPublished = posts.filter((p) => p.status === "published").length;
 
     const milestones = {

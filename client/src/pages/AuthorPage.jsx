@@ -10,6 +10,9 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { toggleLikePost } from "../services/postService";
+import { useSelector } from "react-redux";
+import { toggleFollowUser } from "../services/followService";
+import { toast } from "react-hot-toast";
 
 const AuthorPage = () => {
   const { id } = useParams();
@@ -18,12 +21,17 @@ const AuthorPage = () => {
   const [posts, setPosts] = useState([]);
   const [category, setCategory] = useState("");
   const lastPostRef = useRef(null);
+  const { user } = useSelector((state) => state.auth);
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       const data = await getAuthorDetails(id, category);
       setAuthor(data.author);
       setPosts(data.posts);
+      if (user && data.author.followers?.includes(user._id)) {
+        setIsFollowing(true);
+      }
     };
     fetchData();
   }, [id, category]);
@@ -42,6 +50,17 @@ const AuthorPage = () => {
           : p
       )
     );
+  };
+
+  const handleFollow = async () => {
+    if (!user) return toast.error("Login to follow this author");
+    try {
+      const res = await toggleFollowUser(author._id);
+      setIsFollowing(res.following);
+      toast.success(res.following ? "Followed" : "Unfollowed");
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
   };
 
   const categories = [
@@ -133,6 +152,22 @@ const AuthorPage = () => {
                 </a>
               )}
             </div>
+            <div className="flex gap-6 mt-2 text-sm text-[#37474F]">
+              <span>{author.followers?.length || 0} Followers</span>
+              <span>{author.following?.length || 0} Following</span>
+            </div>
+            {user && user._id !== author._id && (
+              <button
+                onClick={handleFollow}
+                className={`mt-3 px-4 py-1 rounded-full text-sm font-medium shadow transition ${
+                  isFollowing
+                    ? "bg-red-100 text-red-600 hover:bg-red-200"
+                    : "bg-[#00838F] text-white hover:bg-[#006064]"
+                }`}
+              >
+                {isFollowing ? "Unfollow" : "Follow"}
+              </button>
+            )}
           </div>
         </motion.div>
       )}

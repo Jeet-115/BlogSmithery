@@ -40,11 +40,13 @@ export const getAllPosts = async (req, res) => {
 
 export const getPostById = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).populate(
-      "author",
-      "name createdAt"
-    );
+    const post = await Post.findById(req.params.id).populate({
+      path: "author",
+      select: "name createdAt followers following",
+    });
+
     if (!post) return res.status(404).json({ message: "Post not found" });
+
     res.json(post);
   } catch (err) {
     res.status(500).json({ message: "Error fetching post" });

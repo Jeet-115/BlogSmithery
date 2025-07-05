@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getPostById, toggleLikePost } from "../services/postService";
 import CommentSection from "../components/CommentSection";
 import { useSelector } from "react-redux";
+import { toggleFollowUser } from "../services/followService";
 import {
   FaHeart,
   FaFacebook,
@@ -21,6 +22,7 @@ const BlogDetail = () => {
   const [post, setPost] = useState(null);
   const [liked, setLiked] = useState(false);
   const navigate = useNavigate();
+  const [isFollowing, setIsFollowing] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -29,9 +31,24 @@ const BlogDetail = () => {
       if (user && data.likes.includes(user._id)) {
         setLiked(true);
       }
+      if (user && data.author?.followers?.includes(user._id)) {
+        setIsFollowing(true);
+      }
     };
     fetchPost();
   }, [id, user]);
+
+  const handleFollow = async () => {
+    if (!user) return toast.error("Please login to follow!");
+    try {
+      const res = await toggleFollowUser(post.author._id);
+      setIsFollowing(res.following);
+      toast.success(res.following ? "Followed" : "Unfollowed");
+    } catch (err) {
+      console.error("Follow error:", err);
+      toast.error("Action failed");
+    }
+  };
 
   const handleLike = async () => {
     if (!user) return toast.error("Please login to like!");
@@ -88,7 +105,9 @@ const BlogDetail = () => {
           {/* Share Icons */}
           <div className="flex items-center gap-4 text-lg">
             <a
-              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentURL)}`}
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                currentURL
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:text-blue-800"
@@ -96,7 +115,9 @@ const BlogDetail = () => {
               <FaFacebook />
             </a>
             <a
-              href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(currentURL)}&text=Check out this blog!`}
+              href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
+                currentURL
+              )}&text=Check out this blog!`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sky-500 hover:text-sky-700"
@@ -112,7 +133,9 @@ const BlogDetail = () => {
               <FaWhatsapp />
             </a>
             <a
-              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(currentURL)}`}
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                currentURL
+              )}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-700 hover:text-blue-900"
@@ -189,6 +212,8 @@ const BlogDetail = () => {
         <h4 className="text-xl font-semibold text-[#1C2B33] mb-3">
           About the Author
         </h4>
+
+        {/* Author Card */}
         <div className="p-5 bg-white/70 backdrop-blur border border-[#B0BEC5] rounded-xl shadow-md">
           <p className="font-medium text-[#37474F] text-lg">
             {post.author?.name || "Unknown"}
@@ -202,6 +227,26 @@ const BlogDetail = () => {
                 })
               : "Unknown"}
           </p>
+          <div className="flex gap-6 mt-2 text-sm text-[#37474F]">
+            <span>{post.author?.followers?.length || 0} Followers</span>
+            <span>{post.author?.following?.length || 0} Following</span>
+          </div>
+          {/* Follow Button inside the card */}
+          {user && user._id !== post.author._id && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // 🚫 Prevent navigate
+                handleFollow();
+              }}
+              className={`mt-4 px-4 py-1 rounded-full text-sm font-medium shadow transition ${
+                isFollowing
+                  ? "bg-red-100 text-red-600 hover:bg-red-200"
+                  : "bg-[#00838F] text-white hover:bg-[#006064]"
+              }`}
+            >
+              {isFollowing ? "Unfollow" : "Follow"}
+            </button>
+          )}
         </div>
       </motion.div>
     </motion.div>

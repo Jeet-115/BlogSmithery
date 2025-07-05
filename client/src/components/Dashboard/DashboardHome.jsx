@@ -182,7 +182,7 @@ function DashboardHome() {
           <>
             {/* Stats Cards */}
             <motion.div
-              className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"
+              className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8"
               initial="hidden"
               animate="visible"
               variants={{
@@ -199,6 +199,8 @@ function DashboardHome() {
                 { label: "Drafts", value: stats.draft },
                 { label: "Total Views", value: stats.views },
                 { label: "Total Likes", value: stats.likes },
+                { label: "Followers", value: stats.followers || 0 },
+                { label: "Following", value: stats.following || 0 },
               ].map((item, i) => (
                 <motion.div
                   key={item.label}

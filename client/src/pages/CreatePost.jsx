@@ -48,7 +48,7 @@ const CreatePost = () => {
   const [category, setCategory] = useState("");
   const [filteredCategories, setFilteredCategories] = useState(categories);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [scheduledDate, setScheduledDate] = useState("");
+  const [previewMode, setPreviewMode] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -81,7 +81,9 @@ const CreatePost = () => {
         status,
       });
 
-      toast.success(status === "published" ? "Post published 🎉" : "Draft saved ✅");
+      toast.success(
+        status === "published" ? "Post published 🎉" : "Draft saved ✅"
+      );
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -236,13 +238,33 @@ const CreatePost = () => {
               </>
             )}
           </motion.div>
+          <motion.div
+            className="flex justify-end"
+            variants={fadeUp}
+            custom={5.5}
+          >
+            <button
+              type="button"
+              onClick={() => setPreviewMode((prev) => !prev)}
+              className="mb-3 bg-[#00838F] hover:bg-[#006064] text-white px-4 py-1 rounded-full text-sm font-medium transition"
+            >
+              {previewMode ? "🔧 Back to Edit" : "👁️ Preview Blog"}
+            </button>
+          </motion.div>
 
-          {/* Editor */}
+          {/* Editor or Preview */}
           <motion.div variants={fadeUp} custom={6}>
             <label className="block text-base font-medium text-[#37474F] mb-1">
               Content
             </label>
-            <RichTextEditor content={content} onChange={setContent} />
+
+            {previewMode ? (
+              <div className="prose prose-lg max-w-none p-5 bg-white border border-[#CFD8DC] rounded-xl shadow-md min-h-[300px]">
+                <div dangerouslySetInnerHTML={{ __html: content }} />
+              </div>
+            ) : (
+              <RichTextEditor content={content} onChange={setContent} />
+            )}
           </motion.div>
 
           {/* Buttons */}

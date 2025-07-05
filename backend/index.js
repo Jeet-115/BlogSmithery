@@ -12,6 +12,7 @@ import exploreRoutes from './routes/exploreRoutes.js';
 import authorRoutes from "./routes/authorRoutes.js";
 import notificationRoutes from './routes/notificationRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -34,6 +35,7 @@ app.use("/api/explore", exploreRoutes);
 app.use("/api/author", authorRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/profile", profileRoutes);
+app.use('/api/users',userRoutes);
 
 app.get("/health", (req, res) => {
   console.log("🩺 Health check at:", new Date().toLocaleString());
