@@ -1,6 +1,9 @@
 import axiosInstance from '../utils/axiosInstance';
 
-export const getOverviewStats = () => axiosInstance.get('/api/overview/me/overview').then(res => res.data);
+export const getOverviewStats = async () => {
+  const res = await axiosInstance.get('/api/overview/me/overview');
+  return res.data; // should include .ban
+};
 export const getTopBlogs = () => axiosInstance.get('/api/overview/me/top-blogs').then(res => res.data);
 export const getCategoryStats = () => axiosInstance.get('/api/overview/me/category-stats').then(res => res.data);
 export const getPublishingTrends = () => axiosInstance.get('/api/overview/me/trends').then(res => res.data);

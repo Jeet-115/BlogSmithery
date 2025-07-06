@@ -14,6 +14,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import adminUserRoutes from "./routes/adminUserRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -38,6 +39,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/profile", profileRoutes);
 app.use('/api/users',userRoutes);
 app.use('/api/admin',adminRoutes);
+app.use("/api/admin/users", adminUserRoutes);
 
 app.get("/health", (req, res) => {
   console.log("🩺 Health check at:", new Date().toLocaleString());

@@ -4,7 +4,7 @@ import User from "../models/User.js";
 export const getUserOverview = async (req, res) => {
   try {
     const userId = req.user._id;
-    const user = await User.findById(userId).select("followers following");
+    const user = await User.findById(userId).select("followers following ban");
 
     // Calculate stats using MongoDB queries
     const [total, published, draft] = await Promise.all([
@@ -36,6 +36,7 @@ export const getUserOverview = async (req, res) => {
         followers: user.followers.length,
         following: user.following.length,
       },
+      ban: user.ban,
       recentPosts,
     });
   } catch (err) {

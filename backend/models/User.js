@@ -20,6 +20,12 @@ const userSchema = new mongoose.Schema(
     interests: { type: [String], default: [] },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    status: { type: String, enum: ["active", "banned"], default: "active" },
+    ban: {
+      isBanned: { type: Boolean, default: false },
+      bannedUntil: { type: Date, default: null },
+      reason: { type: String, default: "" },
+    },
   },
   { timestamps: true }
 );

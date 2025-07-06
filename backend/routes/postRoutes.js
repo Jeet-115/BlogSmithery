@@ -10,7 +10,7 @@ import {
   deletePost,
   toggleLike,
 } from '../controllers/postController.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, checkBanStatus } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -36,8 +36,8 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
 });
 
 // Post routes
-router.route('/').get(getAllPosts).post(protect, createPost);
+router.route('/').get(getAllPosts).post(protect, checkBanStatus, createPost);
 router.route('/:id').get(getPostById).put(protect, updatePost).delete(protect, deletePost);
-router.route('/:id/like').patch(protect, toggleLike);
+router.route('/:id/like').patch(protect, checkBanStatus, toggleLike);
 
 export default router;

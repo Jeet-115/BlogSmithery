@@ -19,6 +19,8 @@ import { deletePostById } from "../../services/postService"; // 👈 add this
 import { toast } from "react-hot-toast"; // 👈 for notifications
 import { motion, AnimatePresence } from "framer-motion";
 import ConfirmModal from "../../components/ConfirmModal";
+import BanNoticeModal from "../../components/BanNoticeModal"; // 👈 add this
+import BanAlert from "../../components/BanAlert";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -54,6 +56,8 @@ function DashboardHome() {
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [postToDelete, setPostToDelete] = useState(null);
+  const [banInfo, setBanInfo] = useState(null);
+  const [showBanModal, setShowBanModal] = useState(false);
 
   const handleEdit = (id) => {
     navigate(`/dashboard/edit-post/${id}`);
@@ -80,43 +84,36 @@ function DashboardHome() {
   };
 
   useEffect(() => {
+    let interval;
+
     const fetchAllStats = async () => {
       try {
-        const [
-          overview,
-          top,
-          categories,
-          trend,
-          drafts,
-          words,
-          liked,
-          milestone,
-        ] = await Promise.all([
-          getOverviewStats(),
-          getTopBlogs(),
-          getCategoryStats(),
-          getPublishingTrends(),
-          getStaleDrafts(),
-          getWordStats(),
-          getRecentlyLikedPosts(),
-          getMilestones(),
-        ]);
-
+        const overview = await getOverviewStats();
         setStats(overview.stats);
         setRecentPosts(overview.recentPosts);
-        setTopBlogs(top);
-        setCategoryStats(categories);
-        setTrends(trend);
-        setStaleDrafts(drafts);
-        setWordStats(words);
-        setLikedPosts(liked);
-        setMilestones(milestone);
+
+        const ban = overview.ban;
+
+        setBanInfo(ban);
+
+        if (
+          ban?.isBanned &&
+          new Date(ban.bannedUntil) > new Date() &&
+          !sessionStorage.getItem("banPopupShown")
+        ) {
+          setShowBanModal(true);
+          sessionStorage.setItem("banPopupShown", "true");
+        }
       } catch (err) {
         console.error("Failed to load dashboard analytics", err);
       }
     };
 
     fetchAllStats();
+
+    interval = setInterval(fetchAllStats, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const filteredPosts =
@@ -151,6 +148,7 @@ function DashboardHome() {
           This is your spiritual space to reflect, create and track your writing
           journey.
         </motion.p>
+        {banInfo && <BanAlert ban={banInfo} />}
 
         {/* Tab Buttons */}
         <motion.div
@@ -638,6 +636,12 @@ function DashboardHome() {
           title="Delete this post?"
           message="This action cannot be undone. Are you sure you want to delete this blog post?"
         />
+        {showBanModal && banInfo && (
+          <BanNoticeModal
+            ban={banInfo}
+            onClose={() => setShowBanModal(false)}
+          />
+        )}
       </motion.div>
     </AnimatePresence>
   );

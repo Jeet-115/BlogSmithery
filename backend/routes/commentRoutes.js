@@ -4,11 +4,11 @@ import {
   getCommentsByPost,
   deleteComment,
 } from '../controllers/commentController.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, checkBanStatus } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', protect, createComment);
+router.post('/', protect, checkBanStatus, createComment);
 router.get('/:postId', getCommentsByPost);
 router.delete('/:id', protect, deleteComment);
 

@@ -21,6 +21,7 @@ import BlogDetail from "./pages/BlogDetail";
 import PublicBlogDetail from "./pages/PublicBlogDetail";
 import AuthorPage from "./pages/AuthorPage";
 import Profile from "./pages/Profile";
+import AdminUsers from "./components/Admin/AdminUsers";
 
 const AppContent = () => {
   const dispatch = useDispatch();
@@ -79,6 +80,7 @@ const AppContent = () => {
         }
       >
         <Route index element={<AdminHome />} />
+        <Route path="users" element={<AdminUsers />} />
       </Route>
     </Routes>
   );

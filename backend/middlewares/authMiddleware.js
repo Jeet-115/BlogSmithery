@@ -22,3 +22,13 @@ export const adminOnly = (req, res, next) => {
     res.status(403).json({ message: 'Admin access only' });
   }
 };
+
+export const checkBanStatus = async (req, res, next) => {
+  const user = req.user;
+  if (user?.ban?.isBanned && new Date() < new Date(user.ban.bannedUntil)) {
+    return res.status(403).json({
+      message: `You are banned until ${new Date(user.ban.bannedUntil).toLocaleString()}`,
+    });
+  }
+  next();
+};
